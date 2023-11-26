@@ -44,13 +44,14 @@ detector = FaceDetector()
 rtspurl =  'rtsp://admin:ndcndc@192.168.10.226:554/channel1'
 Localurl =  'rtsp://admin:admin4763@192.168.5.190:554/'
 httpurl =  'http://192.168.10.226:80/video'
+darourl =  'rtsp://admin:admin1234@192.168.16.252:554'
 
 class camCapture:
     def __init__(self, camID, buffer_size):
         self.Frame = deque(maxlen=buffer_size)
         self.status = False
         self.isstop = False
-        self.capture = cv2.VideoCapture(0)
+        self.capture = cv2.VideoCapture(camID)
         
         
     def start(self):
@@ -91,23 +92,23 @@ class camCapture:
         t3 = threading.Thread(target=EncodeImg , daemon=True, args=(frame))
         t3.start()
     
-    # def EncodeImg(frame):
-    #     img = cv2.resize(frame, (0, 0), None, 0.25, 0.25)
-    #     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-    #     faceCurFrame = face_recognition.face_locations(img)
-    #     encodeCurFrame = face_recognition.face_encodings(img, faceCurFrame)
-    #     for encodeFace, faceLoc in zip(encodeCurFrame, faceCurFrame):
-    #         mtchs = face_recognition.compare_faces(encodeListKnown, encodeFace)
-    #         fceDis = face_recognition.face_distance(encodeListKnown, encodeFace)
-    #         mtchIndx = np.argmin(fceDis)
-    #         if fceDis[mtchIndx] < 0.5 and mtchs[mtchIndx]:
-    #             return EmployeeIds[mtchIndx]
+    def EncodeImg(frame):
+        img = cv2.resize(frame, (0, 0), None, 0.25, 0.25)
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        faceCurFrame = face_recognition.face_locations(img)
+        encodeCurFrame = face_recognition.face_encodings(img, faceCurFrame)
+        for encodeFace, faceLoc in zip(encodeCurFrame, faceCurFrame):
+            mtchs = face_recognition.compare_faces(encodeListKnown, encodeFace)
+            fceDis = face_recognition.face_distance(encodeListKnown, encodeFace)
+            mtchIndx = np.argmin(fceDis)
+            if fceDis[mtchIndx] < 0.5 and mtchs[mtchIndx]:
+                return EmployeeIds[mtchIndx]
 
 # print('camera start to record')
 
 resolutions = [[640, 480],[1024, 768],[1280, 704],[1920, 1088],[3840, 2144], [4032, 3040]]
 # cam = cv2.VideoCapture(Localurl)
-cam = camCapture(Localurl, buffer_size=100)
+cam = camCapture(darourl, buffer_size=100)
 cam.capture.set(cv2.CAP_PROP_FOURCC ,cv2.VideoWriter_fourcc(*'MJPG'))
 cam.capture.set(cv2.CAP_PROP_FRAME_WIDTH, resolutions[0][0])
 cam.capture.set(cv2.CAP_PROP_FRAME_HEIGHT, resolutions[0][1])
@@ -148,7 +149,7 @@ while True:
     frame, bboxs = detector.findFaces(frame)
     for box in bboxs:
         # print('find box')
-        emplyee = cam.StartEncodeImg(frame)
+        emplyee = EncodeImg(frame)
         if emplyee is not None and emplyee is not int(0):
             # print('emplyee:', emplyee)
             x, y, w, h = box['bbox']

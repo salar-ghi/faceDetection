@@ -33,6 +33,8 @@ detector = FaceDetector()
 rtspurl =  "rtsp://admin:ndcndc@192.168.10.226:554/channel1"
 Localurl =  'rtsp://admin:admin4763@192.168.5.190:554/'
 httpurl =  'http://192.168.10.226:80/video'
+darourl =  'rtsp://admin:admin1234@192.168.16.252:554'
+
 
 class camCapture:
     def __init__(self, camID, buffer_size):
@@ -65,14 +67,15 @@ class camCapture:
 
 resolutions = [[640, 480],[1024, 768],[1280, 704],[1920, 1088],[3840, 2144], [4032, 3040]]
 # cam = cv2.VideoCapture(Localurl, cv2.CAP_DSHOW)
-cam = camCapture(Localurl, buffer_size=50)
-cam.capture.set(cv2.CAP_PROP_FRAME_WIDTH, resolutions[1][0])
-cam.capture.set(cv2.CAP_PROP_FRAME_HEIGHT, resolutions[1][1])
-cam.capture.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
-# cam.set(cv2.CAP_PROP_FRAME_COUNT,1)
-cam.capture.set(cv2.CAP_PROP_BUFFERSIZE, 1)
-cam.capture.set(cv2.CAP_PROP_FPS, 20)
-cam.capture.set(cv2.CAP_PROP_POS_FRAMES,0)
+cam = camCapture(darourl, buffer_size=100)
+cam.capture.set(cv2.CAP_PROP_FOURCC ,cv2.VideoWriter_fourcc(*'MJPG'))
+cam.capture.set(cv2.CAP_PROP_FRAME_WIDTH, resolutions[0][0])
+cam.capture.set(cv2.CAP_PROP_FRAME_HEIGHT, resolutions[0][1])
+# cam.capture.set(cv2.CAP_PROP_FOURCC ,cv2.VideoWriter_fourcc(*'XVID'))
+cam.capture.set(cv2.CAP_PROP_BUFFERSIZE, 100)
+cam.capture.set(cv2.CAP_PROP_FPS, 10)
+cam.capture.set(cv2.CAP_PROP_FRAME_COUNT,1)
+cam.capture.set(cv2.CAP_PROP_POS_FRAMES,1)
 
 # start the reading frame thread
 cam.start()

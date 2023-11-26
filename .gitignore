@@ -1,2 +1,4 @@
 env/
-vs_code/
+.vs_code
+dataset/
+env.rar
