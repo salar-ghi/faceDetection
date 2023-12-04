@@ -2,7 +2,6 @@ import pickle
 import os
 import face_recognition
 import cv2
-from numba import jit, cuda, njit, numba
 import torch
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'

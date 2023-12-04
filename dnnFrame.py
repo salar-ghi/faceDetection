@@ -4,15 +4,19 @@ import torch
 from time import sleep, time
 from collections import deque
 import threading
-import multiprocessing as mp
 
-device = 'cuda' if torch.cuda.is_available() else 'cpu'
-torch.device('cuda')
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+torch.set_default_device(device)
+torch.device(device)
+print("Is CUDA supported by this system? ",
+      {torch.cuda.is_available()})
 
-# import tensorflow as tf
-# tf.test.gpu_device_name()
+cuda_id = torch.cuda.current_device()
+print("Name of current CUDA device:",
+      {torch.cuda.get_device_name(cuda_id)})
 
-# @jit(nopython=False, parallel=True,fastmath=True, target_backend="cuda")
+
+
 def ResizeWithAspectRatio(image, width=None, height=None, inter=cv2.INTER_AREA):
     dim = None
     (h, w) = image.shape[:2]
@@ -44,30 +48,25 @@ class camCapture:
         self.capture = cv2.VideoCapture(camID)
         
     def start(self):
-        print('camera started!')
         t1 = threading.Thread(target=self.queryframe, daemon=True, args=())
         t1.start()
 
     def stop(self):
         self.isstop = True
-        print('camera stopped!')
 
     def getframe(self):
-        print('current buffers : ', len(self.Frame))
         return self.Frame.popleft()
 
     def queryframe(self):
         while (not self.isstop):
-            start = time()
             self.status, tmp = self.capture.read()
-            print('read frame processed : ', (time() - start) *1000, 'ms')
             self.Frame.append(tmp)
 
         self.capture.release()
 
 resolutions = [[640, 480],[1024, 768],[1280, 704],[1920, 1088],[3840, 2144], [4032, 3040]]
 # cam = cv2.VideoCapture(Localurl, cv2.CAP_DSHOW)
-cam = camCapture(darourl, buffer_size=100)
+cam = camCapture(0, buffer_size=50)
 cam.capture.set(cv2.CAP_PROP_FOURCC ,cv2.VideoWriter_fourcc(*'MJPG'))
 cam.capture.set(cv2.CAP_PROP_FRAME_WIDTH, resolutions[0][0])
 cam.capture.set(cv2.CAP_PROP_FRAME_HEIGHT, resolutions[0][1])
@@ -86,7 +85,6 @@ sleep(5)
 while True:
     # ret, frame = cam.read()
     frame = cam.getframe()
-    # print(cam.capture.get(cv2.CAP_PROP_FPS))
     frame, bboxs = detector.findFaces(frame)
     # for (i, box) in bboxs:
     #     x, y, w, h = box['bbox']
