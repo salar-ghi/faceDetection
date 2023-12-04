@@ -5,7 +5,6 @@ import numpy as np
 import pickle
 import cvzone
 import torch
-# from numba import jit, cuda
 
 from time import sleep
 from collections import deque
@@ -16,20 +15,7 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 torch.set_default_device(device)
 torch.device(device)
 
-# print("Is CUDA supported by this system? ", {torch.cuda.is_available()})
 
-# cuda_id = torch.cuda.current_device()
-# print("Name of current CUDA device:", {torch.cuda.get_device_name(cuda_id)})
-
-
-
-# def EncodeFiles():
-#     file = open('EncodeFile.p', 'rb')
-#     encodeListKnownWithIds = pickle.load(file)
-#     file.close()
-#     return encodeListKnownWithIds
-
-# print('active threads 1-: ',threading.active_count())
 
 def ResizeWithAspectRatio(image, width=None, height=None, inter=cv2.INTER_AREA):
     dim = None
@@ -126,10 +112,9 @@ cam.capture.set(cv2.CAP_PROP_POS_FRAMES,1)
 # cv2.waitKey(1000 / cv2.CAP_PROP_FPS - 1)
 
 cam.start()
-# sleep(2)
+sleep(1)
 
 encodeListKnown, EmployeeIds = cam.EncodeFiles()
-
 
 def EncodeImg(frame):
     img = cv2.resize(frame, (0, 0), None, 0.25, 0.25)
@@ -143,14 +128,9 @@ def EncodeImg(frame):
         if fceDis[mtchIndx] < 0.5 and mtchs[mtchIndx]:
             return EmployeeIds[mtchIndx]
         
-# def StartEncodeImg(frame):
-#     t3 = threading.Thread(target=EncodeImg , daemon=True, args=(frame))
-#     t3.start()
-#     t3.join()
 
 detector = FaceDetector()
 while True:
-    # ret, frame = cam.read()
     frame = cam.getframe()
     # frame, bboxs = threading.Thread(target=detector.findFaces, daemon=True, args=(frame))
     frame, bboxs = detector.findFaces(frame)
@@ -175,4 +155,3 @@ while True:
         cam.stop()
         break
 cv2.destroyAllWindows()
-        
